@@ -53,6 +53,7 @@ builder.Services.AddScoped<ServiceManagementService>();
 builder.Services.AddScoped<TrainerManagementService>();
 builder.Services.AddScoped<ClassSessionManagementService>();
 builder.Services.AddScoped<BookingManagementService>();
+builder.Services.AddScoped<ContactRequestManagementService>();
 
 
 // JWT-аутентификация
@@ -70,6 +71,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -80,6 +90,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
+
+//Важный момент про безопасность: AllowAnyOrigin() — это нормально для учебного проекта и разработки, но для реального продакшена стоило бы ограничить конкретным доменом твоего сайта вместо "разрешить всем". Раз дедлайн жмёт и это учебный проект — сейчас это ок, но стоит об этом знать.
 
 app.UseAuthentication(); // обязательно ДО UseAuthorization
 app.UseAuthorization();
