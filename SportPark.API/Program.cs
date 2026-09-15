@@ -50,7 +50,8 @@ var jwtSecretKey = builder.Configuration["Jwt:SecretKey"]!;
 builder.Services.AddScoped(sp => new TokenService(jwtSecretKey));
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ServiceManagementService>();
-builder.Services.AddScoped<TrainerManagementService>(); 
+builder.Services.AddScoped<TrainerManagementService>();
+builder.Services.AddScoped<ClassSessionManagementService>();
 
 
 // JWT-аутентификация
