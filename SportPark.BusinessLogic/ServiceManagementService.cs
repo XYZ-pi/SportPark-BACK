@@ -7,9 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SportPark.DataAccess.Context;
-using SportPark.Domains.Entities;
-using SportPark.Domains.Models;
+
 
 namespace SportPark.BusinessLogic
 {
