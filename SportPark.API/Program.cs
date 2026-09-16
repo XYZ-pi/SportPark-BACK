@@ -71,6 +71,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -83,6 +84,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await SportPark.DataAccess.Context.DbSeeder.SeedAsync(context);
+}
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -92,7 +100,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
-
 //Важный момент про безопасность: AllowAnyOrigin() — это нормально для учебного проекта и разработки, но для реального продакшена стоило бы ограничить конкретным доменом твоего сайта вместо "разрешить всем". Раз дедлайн жмёт и это учебный проект — сейчас это ок, но стоит об этом знать.
 
 app.UseAuthentication(); // обязательно ДО UseAuthorization
