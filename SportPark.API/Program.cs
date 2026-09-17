@@ -54,6 +54,7 @@ builder.Services.AddScoped<TrainerManagementService>();
 builder.Services.AddScoped<ClassSessionManagementService>();
 builder.Services.AddScoped<BookingManagementService>();
 builder.Services.AddScoped<ContactRequestManagementService>();
+builder.Services.AddScoped<SubscriptionManagementService>();
 
 
 // JWT-аутентификация
