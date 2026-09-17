@@ -8,8 +8,8 @@ namespace SportPark.Domains.Enums
 {
     public enum BookingStatus
     {
-        Pending,
         Confirmed,
-        Cancelled
+        Cancelled,
+        Completed
     }
 }

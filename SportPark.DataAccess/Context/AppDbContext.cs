@@ -18,6 +18,8 @@ namespace SportPark.DataAccess.Context
         public DbSet<ClassSession> ClassSessions { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<ContactRequest> ContactRequests { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<PersonalSession> PersonalSessions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
