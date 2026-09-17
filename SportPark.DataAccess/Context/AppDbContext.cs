@@ -35,6 +35,18 @@ namespace SportPark.DataAccess.Context
                 .WithMany()
                 .HasForeignKey(b => b.ClassSessionId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PersonalSession>()
+                .HasOne(ps => ps.Client)
+                .WithMany()
+                .HasForeignKey(ps => ps.ClientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PersonalSession>()
+                .HasOne(ps => ps.Trainer)
+                .WithMany()
+                .HasForeignKey(ps => ps.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 
