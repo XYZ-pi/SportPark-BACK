@@ -1,24 +1,20 @@
-﻿using SportPark.DataAccess.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using SportPark.DataAccess.Context;
 using SportPark.Domains.Entities;
 using SportPark.Domains.Enums;
 using SportPark.Domains.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace SportPark.BusinessLogic
 {
     public class BookingManagementService
     {
         private readonly AppDbContext _context;
+        private readonly SubscriptionManagementService _subscriptionService;
 
-        public BookingManagementService(AppDbContext context)
+        public BookingManagementService(AppDbContext context, SubscriptionManagementService subscriptionService)
         {
             _context = context;
+            _subscriptionService = subscriptionService;
         }
 
         public async Task<BookingResponse> Create(int userId, BookingCreateRequest request)
@@ -40,6 +36,10 @@ namespace SportPark.BusinessLogic
             if (alreadyBooked)
                 throw new InvalidOperationException("Вы уже записаны на это занятие");
 
+            var subscription = await _subscriptionService.GetActiveSubscription(userId, SubscriptionType.Group);
+            if (subscription == null)
+                throw new InvalidOperationException("Нет активного группового абонемента с оставшимися посещениями");
+
             var booking = new Booking
             {
                 UserId = userId,
@@ -51,17 +51,7 @@ namespace SportPark.BusinessLogic
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            return new BookingResponse
-            {
-                Id = booking.Id,
-                ServiceName = session.Service!.Name,
-                TrainerName = session.Trainer!.User!.Name,
-                DayOfWeek = session.DayOfWeek,
-                StartTime = session.StartTime.ToString(@"hh\:mm"),
-                Hall = session.Hall,
-                BookedAt = booking.BookedAt,
-                Status = booking.Status.ToString()
-            };
+            return MapToResponse(booking, session);
         }
 
         public async Task<List<BookingResponse>> GetMyBookings(int userId)
@@ -90,13 +80,89 @@ namespace SportPark.BusinessLogic
         public async Task<bool> Cancel(int userId, int bookingId)
         {
             var booking = await _context.Bookings
+                .Include(b => b.ClassSession)
                 .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
 
             if (booking == null) return false;
+            if (booking.Status != BookingStatus.Confirmed) return false;
+
+            var sessionDateTime = GetNextOccurrenceUtc(booking.ClassSession!.DayOfWeek, booking.ClassSession.StartTime);
+            var isLateCancel = (sessionDateTime - DateTime.UtcNow).TotalHours < 2;
 
             booking.Status = BookingStatus.Cancelled;
+
+            if (isLateCancel)
+            {
+                await DeductSession(userId, SubscriptionType.Group);
+                booking.SessionDeducted = true;
+            }
+
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        // requestingUserId — тот, кто выполняет действие (тренер или админ); isAdmin — обходит проверку "сегодня"
+        public async Task<bool> MarkCompleted(int requestingUserId, bool isAdmin, int bookingId)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.ClassSession)
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+            if (booking == null) return false;
+            if (booking.Status != BookingStatus.Confirmed) return false;
+
+            if (!isAdmin)
+            {
+                var trainer = await _context.Trainers.FirstOrDefaultAsync(t => t.UserId == requestingUserId);
+                if (trainer == null || trainer.Id != booking.ClassSession!.TrainerId)
+                    return false; // не тот тренер
+
+                if (booking.ClassSession!.DayOfWeek != DateTime.UtcNow.DayOfWeek)
+                    return false; // не сегодняшнее занятие
+            }
+
+            booking.Status = BookingStatus.Completed;
+            booking.SessionDeducted = true;
+            await DeductSession(booking.UserId, SubscriptionType.Group);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private async Task DeductSession(int userId, SubscriptionType type)
+        {
+            var subscription = await _subscriptionService.GetActiveSubscription(userId, type);
+            if (subscription != null)
+            {
+                subscription.RemainingSessions -= 1;
+                if (subscription.RemainingSessions <= 0)
+                    subscription.IsActive = false;
+            }
+        }
+
+        private static DateTime GetNextOccurrenceUtc(DayOfWeek day, TimeSpan time)
+        {
+            var now = DateTime.UtcNow;
+            int daysUntil = ((int)day - (int)now.DayOfWeek + 7) % 7;
+            var candidate = now.Date.AddDays(daysUntil).Add(time);
+            if (daysUntil == 0 && candidate < now)
+                candidate = candidate.AddDays(7);
+            return candidate;
+        }
+
+        private static BookingResponse MapToResponse(Booking booking, ClassSession session)
+        {
+            return new BookingResponse
+            {
+                Id = booking.Id,
+                ServiceName = session.Service!.Name,
+                TrainerName = session.Trainer!.User!.Name,
+                DayOfWeek = session.DayOfWeek,
+                StartTime = session.StartTime.ToString(@"hh\:mm"),
+                Hall = session.Hall,
+                BookedAt = booking.BookedAt,
+                Status = booking.Status.ToString()
+            };
         }
     }
 }

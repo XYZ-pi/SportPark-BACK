@@ -55,5 +55,16 @@ namespace SportPark.API.Controllers
             if (!success) return NotFound();
             return NoContent();
         }
+
+        [HttpPost("{id}/complete")]
+        [Authorize(Roles = "Trainer,Admin")]
+        public async Task<IActionResult> Complete(int id)
+        {
+            var userId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Admin");
+            var success = await _bookingManagementService.MarkCompleted(userId, isAdmin, id);
+            if (!success) return BadRequest(new { message = "Невозможно списать это занятие (не найдено, не сегодняшнее, или не ваше)" });
+            return NoContent();
+        }
     }
 }
