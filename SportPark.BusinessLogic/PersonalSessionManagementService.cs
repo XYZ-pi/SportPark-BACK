@@ -94,7 +94,7 @@ namespace SportPark.BusinessLogic
 
             if (session == null || session.Completed || session.Cancelled) return false;
 
-            var isLateCancel = (session.SessionStart - DateTime.UtcNow).TotalHours < 2;
+            var isLateCancel = (session.SessionStart - DateTime.Now).TotalHours < 2;
 
             session.Cancelled = true;
 
@@ -117,7 +117,7 @@ namespace SportPark.BusinessLogic
             {
                 var trainer = await _context.Trainers.FirstOrDefaultAsync(t => t.UserId == requestingUserId);
                 if (trainer == null || trainer.Id != session.TrainerId) return false;
-                if (session.SessionStart.Date != DateTime.UtcNow.Date) return false;
+                if (session.SessionStart.Date != DateTime.Now.Date) return false;
             }
 
             session.Completed = true;

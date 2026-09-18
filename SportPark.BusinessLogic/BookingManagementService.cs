@@ -87,7 +87,7 @@ namespace SportPark.BusinessLogic
             if (booking.Status != BookingStatus.Confirmed) return false;
 
             var sessionDateTime = GetNextOccurrenceUtc(booking.ClassSession!.DayOfWeek, booking.ClassSession.StartTime);
-            var isLateCancel = (sessionDateTime - DateTime.UtcNow).TotalHours < 2;
+            var isLateCancel = (sessionDateTime - DateTime.Now).TotalHours < 2;
 
             booking.Status = BookingStatus.Cancelled;
 
@@ -117,7 +117,7 @@ namespace SportPark.BusinessLogic
                 if (trainer == null || trainer.Id != booking.ClassSession!.TrainerId)
                     return false; // не тот тренер
 
-                if (booking.ClassSession!.DayOfWeek != DateTime.UtcNow.DayOfWeek)
+                if (booking.ClassSession!.DayOfWeek != DateTime.Now.DayOfWeek)
                     return false; // не сегодняшнее занятие
             }
 
@@ -142,7 +142,7 @@ namespace SportPark.BusinessLogic
 
         private static DateTime GetNextOccurrenceUtc(DayOfWeek day, TimeSpan time)
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
             int daysUntil = ((int)day - (int)now.DayOfWeek + 7) % 7;
             var candidate = now.Date.AddDays(daysUntil).Add(time);
             if (daysUntil == 0 && candidate < now)
