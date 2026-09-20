@@ -66,5 +66,12 @@ namespace SportPark.API.Controllers
             if (!success) return BadRequest(new { message = "Невозможно списать это занятие (не найдено, не сегодняшнее, или не ваше)" });
             return NoContent();
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _bookingManagementService.GetAll());
+        }
     }
 }

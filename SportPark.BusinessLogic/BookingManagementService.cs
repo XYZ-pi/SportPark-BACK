@@ -164,5 +164,29 @@ namespace SportPark.BusinessLogic
                 Status = booking.Status.ToString()
             };
         }
+
+        public async Task<List<BookingResponse>> GetAll()
+        {
+            return await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.ClassSession)
+                    .ThenInclude(cs => cs!.Service)
+                .Include(b => b.ClassSession)
+                    .ThenInclude(cs => cs!.Trainer)
+                        .ThenInclude(t => t!.User)
+                .OrderByDescending(b => b.BookedAt)
+                .Select(b => new BookingResponse
+                {
+                    Id = b.Id,
+                    ServiceName = b.ClassSession!.Service!.Name,
+                    TrainerName = b.ClassSession.Trainer!.User!.Name,
+                    DayOfWeek = b.ClassSession.DayOfWeek,
+                    StartTime = b.ClassSession.StartTime.ToString(@"hh\:mm"),
+                    Hall = b.ClassSession.Hall,
+                    BookedAt = b.BookedAt,
+                    Status = b.Status.ToString()
+                })
+                .ToListAsync();
+        }
     }
 }

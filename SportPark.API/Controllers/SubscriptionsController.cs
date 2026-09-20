@@ -46,5 +46,12 @@ namespace SportPark.API.Controllers
         {
             return Ok(await _subscriptionManagementService.GetForUser(userId));
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _subscriptionManagementService.GetAll());
+        }
     }
 }

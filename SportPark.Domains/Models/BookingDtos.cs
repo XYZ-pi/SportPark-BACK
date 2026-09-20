@@ -14,6 +14,7 @@ namespace SportPark.Domains.Models
     public class BookingResponse
     {
         public int Id { get; set; }
+        public string ClientName { get; set; } = string.Empty;
         public string ServiceName { get; set; } = string.Empty;
         public string TrainerName { get; set; } = string.Empty;
         public DayOfWeek DayOfWeek { get; set; }

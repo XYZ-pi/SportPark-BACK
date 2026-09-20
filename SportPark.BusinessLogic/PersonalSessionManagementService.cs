@@ -152,5 +152,24 @@ namespace SportPark.BusinessLogic
                 Cancelled = s.Cancelled
             };
         }
+
+        public async Task<List<PersonalSessionResponse>> GetAll()
+        {
+            return await _context.PersonalSessions
+                .Include(ps => ps.Client)
+                .Include(ps => ps.Trainer).ThenInclude(t => t!.User)
+                .OrderByDescending(ps => ps.SessionStart)
+                .Select(ps => new PersonalSessionResponse
+                {
+                    Id = ps.Id,
+                    ClientName = ps.Client!.Name,
+                    TrainerName = ps.Trainer!.User!.Name,
+                    SessionStart = ps.SessionStart,
+                    DurationMinutes = ps.DurationMinutes,
+                    Completed = ps.Completed,
+                    Cancelled = ps.Cancelled
+                })
+                .ToListAsync();
+        }
     }
 }

@@ -26,5 +26,15 @@ namespace SportPark.Domains.Models
         public string? Bio { get; set; }
         public string? PhotoUrl { get; set; }
     }
+
+    public class TrainerTodayItemResponse
+    {
+        public string Type { get; set; } = string.Empty; // "Group" или "Individual"
+        public int Id { get; set; } // BookingId для Group, PersonalSessionId для Individual — используй для вызова /complete
+        public string ClientName { get; set; } = string.Empty;
+        public string? ServiceName { get; set; } // null для индивидуальных
+        public string StartTime { get; set; } = string.Empty; // "HH:mm"
+        public string? Hall { get; set; }
+    }
 }
 

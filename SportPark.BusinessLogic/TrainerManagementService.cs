@@ -105,5 +105,57 @@ namespace SportPark.BusinessLogic
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<TrainerTodayItemResponse>> GetTodayForTrainer(int trainerUserId)
+        {
+            var trainer = await _context.Trainers.FirstOrDefaultAsync(t => t.UserId == trainerUserId);
+            if (trainer == null) return new List<TrainerTodayItemResponse>();
+
+            var today = DateTime.Now.DayOfWeek;
+            var result = new List<TrainerTodayItemResponse>();
+
+            // Групповые занятия сегодня — по одной строке на каждого записанного клиента
+            var groupItems = await _context.Bookings
+                .Include(b => b.ClassSession)
+                    .ThenInclude(cs => cs!.Service)
+                .Include(b => b.User)
+                .Where(b => b.ClassSession!.TrainerId == trainer.Id
+                         && b.ClassSession.DayOfWeek == today
+                         && b.Status == BookingStatus.Confirmed)
+                .Select(b => new TrainerTodayItemResponse
+                {
+                    Type = "Group",
+                    Id = b.Id,
+                    ClientName = b.User!.Name,
+                    ServiceName = b.ClassSession!.Service!.Name,
+                    StartTime = b.ClassSession.StartTime.ToString(@"hh\:mm"),
+                    Hall = b.ClassSession.Hall
+                })
+                .ToListAsync();
+
+            result.AddRange(groupItems);
+
+            // Индивидуальные тренировки сегодня
+            var individualItems = await _context.PersonalSessions
+                .Include(ps => ps.Client)
+                .Where(ps => ps.TrainerId == trainer.Id
+                           && ps.SessionStart.Date == DateTime.Now.Date
+                           && !ps.Completed
+                           && !ps.Cancelled)
+                .Select(ps => new TrainerTodayItemResponse
+                {
+                    Type = "Individual",
+                    Id = ps.Id,
+                    ClientName = ps.Client!.Name,
+                    ServiceName = null,
+                    StartTime = ps.SessionStart.ToString("HH:mm"),
+                    Hall = null
+                })
+                .ToListAsync();
+
+            result.AddRange(individualItems);
+
+            return result.OrderBy(i => i.StartTime).ToList();
+        }
     }
 }

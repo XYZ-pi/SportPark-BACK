@@ -82,5 +82,25 @@ namespace SportPark.BusinessLogic
                 IsActive = s.IsActive
             };
         }
+
+        public async Task<List<SubscriptionResponse>> GetAll()
+        {
+            return await _context.Subscriptions
+                .Include(s => s.User)
+                .OrderBy(s => s.User!.Name)
+                .Select(s => new SubscriptionResponse
+                {
+                    Id = s.Id,
+                    UserId = s.UserId,
+                    ClientName = s.User!.Name,
+                    Type = s.Type.ToString(),
+                    TotalSessions = s.TotalSessions,
+                    RemainingSessions = s.RemainingSessions,
+                    StartDate = s.StartDate,
+                    EndDate = s.EndDate,
+                    IsActive = s.IsActive
+                })
+                .ToListAsync();
+        }
     }
 }

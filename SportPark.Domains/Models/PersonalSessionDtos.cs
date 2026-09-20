@@ -4,7 +4,7 @@
     {
         public int ClientId { get; set; }
         public DateTime SessionStart { get; set; }
-        public int DurationMinutes { get; set; } = 60;
+        public int DurationMinutes { get; set; } = 55;
     }
 
     public class PersonalSessionResponse

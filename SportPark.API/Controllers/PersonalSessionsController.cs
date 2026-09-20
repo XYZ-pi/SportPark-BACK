@@ -70,5 +70,12 @@ namespace SportPark.API.Controllers
             if (!success) return BadRequest(new { message = "Невозможно списать эту тренировку" });
             return NoContent();
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _personalSessionManagementService.GetAll());
+        }
     }
 }
