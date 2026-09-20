@@ -56,6 +56,7 @@ builder.Services.AddScoped<BookingManagementService>();
 builder.Services.AddScoped<ContactRequestManagementService>();
 builder.Services.AddScoped<SubscriptionManagementService>();
 builder.Services.AddScoped<PersonalSessionManagementService>();
+builder.Services.AddScoped<UserManagementService>();
 
 
 // JWT-аутентификация

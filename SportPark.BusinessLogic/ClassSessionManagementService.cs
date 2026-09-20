@@ -106,5 +106,28 @@ namespace SportPark.BusinessLogic
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<ClassSessionResponse>> GetForTrainer(int trainerUserId)
+        {
+            var trainer = await _context.Trainers.FirstOrDefaultAsync(t => t.UserId == trainerUserId);
+            if (trainer == null) return new List<ClassSessionResponse>();
+
+            return await _context.ClassSessions
+                .Include(cs => cs.Service)
+                .Include(cs => cs.Trainer)
+                    .ThenInclude(t => t!.User)
+                .Where(cs => cs.TrainerId == trainer.Id)
+                .OrderBy(cs => cs.DayOfWeek).ThenBy(cs => cs.StartTime)
+                .Select(cs => new ClassSessionResponse
+                {
+                    Id = cs.Id,
+                    ServiceName = cs.Service!.Name,
+                    TrainerName = cs.Trainer!.User!.Name,
+                    DayOfWeek = cs.DayOfWeek,
+                    StartTime = cs.StartTime.ToString(@"hh\:mm"),
+                    Hall = cs.Hall
+                })
+                .ToListAsync();
+        }
+
     }
 }

@@ -51,5 +51,13 @@ namespace SportPark.API.Controllers
             if (!success) return NotFound();
             return NoContent();
         }
+
+        [HttpGet("my")]
+        [Authorize(Roles = "Trainer")]
+        public async Task<IActionResult> GetMy()
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            return Ok(await _classSessionManagementService.GetForTrainer(userId));
+        }
     }
 }
