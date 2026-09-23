@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SportPark.Domains.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace SportPark.Domains.Models
         public DayOfWeek DayOfWeek { get; set; }
         public string StartTime { get; set; } = string.Empty; // формат "HH:mm", например "09:00"
         public string Hall { get; set; } = string.Empty;
+        public AudienceType AudienceType { get; set; } = AudienceType.Adult;
+
     }
 
     public class ClassSessionResponse
@@ -23,5 +26,6 @@ namespace SportPark.Domains.Models
         public DayOfWeek DayOfWeek { get; set; }
         public string StartTime { get; set; } = string.Empty;
         public string Hall { get; set; } = string.Empty;
+        public AudienceType AudienceType { get; set; }
     }
 }

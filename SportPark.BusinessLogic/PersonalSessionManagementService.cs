@@ -55,6 +55,7 @@ namespace SportPark.BusinessLogic
                 .Include(ps => ps.Client)
                 .Include(ps => ps.Trainer).ThenInclude(t => t!.User)
                 .Where(ps => ps.TrainerId == trainer.Id)
+                .OrderBy(ps => ps.SessionStart)
                 .Select(ps => new PersonalSessionResponse
                 {
                     Id = ps.Id,
@@ -74,6 +75,7 @@ namespace SportPark.BusinessLogic
                 .Include(ps => ps.Client)
                 .Include(ps => ps.Trainer).ThenInclude(t => t!.User)
                 .Where(ps => ps.ClientId == clientUserId)
+                .OrderBy(ps => ps.SessionStart)
                 .Select(ps => new PersonalSessionResponse
                 {
                     Id = ps.Id,

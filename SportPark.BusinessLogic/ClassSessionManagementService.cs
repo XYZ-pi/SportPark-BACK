@@ -33,7 +33,8 @@ namespace SportPark.BusinessLogic
                     TrainerName = cs.Trainer!.User!.Name,
                     DayOfWeek = cs.DayOfWeek,
                     StartTime = cs.StartTime.ToString(@"hh\:mm"),
-                    Hall = cs.Hall
+                    Hall = cs.Hall,
+                    AudienceType = cs.AudienceType,
                 })
                 .ToListAsync();
         }
@@ -53,7 +54,8 @@ namespace SportPark.BusinessLogic
                     TrainerName = cs.Trainer!.User!.Name,
                     DayOfWeek = cs.DayOfWeek,
                     StartTime = cs.StartTime.ToString(@"hh\:mm"),
-                    Hall = cs.Hall
+                    Hall = cs.Hall,
+                    AudienceType= cs.AudienceType,
                 })
                 .ToListAsync();
         }
@@ -77,7 +79,8 @@ namespace SportPark.BusinessLogic
                 TrainerId = request.TrainerId,
                 DayOfWeek = request.DayOfWeek,
                 StartTime = parsedTime,
-                Hall = request.Hall
+                Hall = request.Hall,
+                AudienceType = request.AudienceType,
             };
 
             _context.ClassSessions.Add(session);
@@ -93,7 +96,8 @@ namespace SportPark.BusinessLogic
                 TrainerName = trainer.User!.Name,
                 DayOfWeek = session.DayOfWeek,
                 StartTime = session.StartTime.ToString(@"hh\:mm"),
-                Hall = session.Hall
+                Hall = session.Hall,
+                AudienceType = session.AudienceType,
             };
         }
 
@@ -124,7 +128,8 @@ namespace SportPark.BusinessLogic
                     TrainerName = cs.Trainer!.User!.Name,
                     DayOfWeek = cs.DayOfWeek,
                     StartTime = cs.StartTime.ToString(@"hh\:mm"),
-                    Hall = cs.Hall
+                    Hall = cs.Hall,
+                    AudienceType = cs.AudienceType,
                 })
                 .ToListAsync();
         }

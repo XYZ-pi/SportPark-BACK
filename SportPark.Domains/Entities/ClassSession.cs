@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SportPark.Domains.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +17,7 @@ namespace SportPark.Domains.Entities
         public DayOfWeek DayOfWeek { get; set; } // встроенный enum .NET, свой писать не надо
         public TimeSpan StartTime { get; set; }
         public string Hall { get; set; } = string.Empty;
+        public AudienceType AudienceType { get; set; } = AudienceType.Adult;
+
     }
 }
